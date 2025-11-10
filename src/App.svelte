@@ -1,5 +1,5 @@
 <script>
-  import { fade, fly, blur, scale, slide } from "svelte/transition";
+  import { fade, slide, scale } from "svelte/transition";
   import { onDestroy } from "svelte";
 
   let language = "—";
@@ -8,13 +8,17 @@
   let countdown = 5;
   let _bookedCountdownInterval = null;
 
-  // Updated stages
+  // New variables for zoom behavior
+  let zoomedSection = null;
+  const cols = 3;
+  const rows = 3;
+
   const stages = ["station", "ticket", "payment", "booked"];
 
   function setLanguage(lang) {
     language = lang;
     showOverlay = false;
-    currentPage = "station"; // show station selection (map) after language
+    currentPage = "station";
   }
 
   function goNext() {
@@ -23,10 +27,7 @@
       const next = stages[index + 1];
       currentPage = next;
 
-      // If we've just moved to the 'booked' stage, start a countdown
-      // that updates every second (5,4,3,2,1) and then returns to language.
       if (next === "booked") {
-        // clear any existing interval
         if (_bookedCountdownInterval) {
           clearInterval(_bookedCountdownInterval);
           _bookedCountdownInterval = null;
@@ -38,10 +39,8 @@
           if (countdown <= 0) {
             clearInterval(_bookedCountdownInterval);
             _bookedCountdownInterval = null;
-            // show the language overlay again
             showOverlay = true;
             currentPage = "language";
-            // reset language display
             language = "—";
           }
         }, 1000);
@@ -49,13 +48,11 @@
     }
   }
 
-  // Ensure the countdown interval is cleared if the component is destroyed
   onDestroy(() => {
     if (_bookedCountdownInterval) clearInterval(_bookedCountdownInterval);
   });
 
   function getProgress() {
-    // progress is percentage based on current stage index
     return ((stages.indexOf(currentPage) + 1) / stages.length) * 100;
   }
 
@@ -71,10 +68,27 @@
         return "Booked";
     }
   }
+
+  // --- Map zoom logic ---
+  function zoomTo(sectionIndex) {
+    zoomedSection = sectionIndex;
+  }
+
+  function resetZoom() {
+    zoomedSection = null;
+  }
+
+  function getTranslate(index) {
+    const col = index % cols;
+    const row = Math.floor(index / cols);
+    // adjust to shift the clicked area toward center
+    const offsetX = (1 - 2 * (col / (cols - 1))) * 150;
+    const offsetY = (1 - 2 * (row / (rows - 1))) * 150;
+    return { x: offsetX, y: offsetY };
+  }
 </script>
 
 <div class="main">
-  <!-- Progress bar only after language selection -->
   {#if currentPage !== "language"}
     <div class="progress-container" transition:fade>
       <div class="progress-bar">
@@ -96,7 +110,6 @@
   {/if}
 
   {#if currentPage === "language"}
-    <!-- LANGUAGE SCREEN -->
     <div class="map">
       {#if showOverlay}
         <div class="overlay" transition:fade>
@@ -108,9 +121,27 @@
       <div class="map-text">Language is {language}</div>
     </div>
   {:else if currentPage === "station"}
-    <!-- STATION SELECTION (MAP) -->
-    <div class="map">
-      <div class="map-text">Language is {language}</div>
+    <!-- STATION MAP WITH ZOOM -->
+    <div class="map" on:dblclick={resetZoom}>
+      <div
+        class="map-inner"
+        style="
+          --zoom: {zoomedSection !== null ? 2 : 1};
+          --translate-x: {zoomedSection !== null
+          ? getTranslate(zoomedSection).x
+          : 0}px;
+          --translate-y: {zoomedSection !== null
+          ? getTranslate(zoomedSection).y
+          : 0}px;
+        "
+      ></div>
+
+      <div class="grid-overlay">
+        {#each Array(rows * cols) as _, i}
+          <div class="grid-cell" on:click={() => zoomTo(i)}></div>
+        {/each}
+      </div>
+
       <button
         class="next-btn"
         transition:slide={{ duration: 400 }}
@@ -198,7 +229,6 @@
     justify-content: space-between;
     margin-top: 6px;
     padding: 0 0.2rem;
-    position: relative;
   }
 
   .checkpoint {
@@ -234,11 +264,11 @@
     font-weight: 600;
   }
 
+  /* MAP + ZOOM SECTION */
   .map {
     flex: 1;
     width: 100%;
     height: 100%;
-    background: url("/map.jpg") center center / cover no-repeat;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -247,6 +277,36 @@
     color: #333;
     position: relative;
     flex-direction: column;
+    overflow: hidden;
+    background-color: white;
+  }
+
+  .map-inner {
+    position: absolute;
+    inset: 0;
+    background: url("/map.jpg") center center / cover no-repeat;
+    transform: scale(var(--zoom))
+      translate(var(--translate-x), var(--translate-y));
+    transition: transform 0.8s ease;
+    transform-origin: center center;
+  }
+
+  .grid-overlay {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+  }
+
+  .grid-cell {
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    cursor: pointer;
+  }
+
+  .grid-cell:hover {
+    background: rgba(255, 255, 255, 0.05);
   }
 
   .overlay {
@@ -310,5 +370,6 @@
     color: white;
     font-weight: 600;
     cursor: pointer;
+    z-index: 3;
   }
 </style>
