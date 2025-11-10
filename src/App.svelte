@@ -1,5 +1,5 @@
 <script>
-  import { fade, fly } from "svelte/transition";
+  import { fade, fly, blur, scale, slide } from "svelte/transition";
   import { onDestroy } from "svelte";
 
   let language = "—";
@@ -113,18 +113,18 @@
       <div class="map-text">Language is {language}</div>
       <button
         class="next-btn"
-        transition:fly={{ y: 20, duration: 400 }}
+        transition:slide={{ duration: 400 }}
         on:click={goNext}
       >
         Next →
       </button>
     </div>
   {:else if currentPage === "ticket"}
-    <div class="page" transition:fade>
+    <div class="page" transition:slide>
       <h2>Select ticket options (placeholder)</h2>
       <button
         class="next-btn"
-        transition:fly={{ y: 20, duration: 400 }}
+        transition:scale={{ duration: 400 }}
         on:click={goNext}
       >
         Next →
@@ -135,14 +135,14 @@
       <h2>Payment Page (placeholder)</h2>
       <button
         class="next-btn"
-        transition:fly={{ y: 20, duration: 400 }}
+        transition:scale={{ duration: 400 }}
         on:click={goNext}
       >
         Pay Now →
       </button>
     </div>
   {:else if currentPage === "booked"}
-    <div class="page" transition:fade>
+    <div class="page" transition:slide={{ duration: 400 }}>
       <h2>✅ Ticket Booked!</h2>
       <p style="margin-top:0.5rem; font-size:1.1rem;">
         Returning to language selection in {countdown}...
