@@ -1,17 +1,12 @@
 <script>
-  import { fade, slide, scale } from "svelte/transition";
+  import { fade, fly, blur, scale, slide } from "svelte/transition";
   import { onDestroy } from "svelte";
 
   let language = "—";
   let showOverlay = true;
-  let currentPage = "language"; // "language" | "station" | "ticket" | "payment" | "booked"
+  let currentPage = "language";
   let countdown = 5;
   let _bookedCountdownInterval = null;
-
-  // New variables for zoom behavior
-  let zoomedSection = null;
-  const cols = 3;
-  const rows = 3;
 
   const stages = ["station", "ticket", "payment", "booked"];
 
@@ -68,24 +63,6 @@
         return "Booked";
     }
   }
-
-  // --- Map zoom logic ---
-  function zoomTo(sectionIndex) {
-    zoomedSection = sectionIndex;
-  }
-
-  function resetZoom() {
-    zoomedSection = null;
-  }
-
-  function getTranslate(index) {
-    const col = index % cols;
-    const row = Math.floor(index / cols);
-    // adjust to shift the clicked area toward center
-    const offsetX = (1 - 2 * (col / (cols - 1))) * 150;
-    const offsetY = (1 - 2 * (row / (rows - 1))) * 150;
-    return { x: offsetX, y: offsetY };
-  }
 </script>
 
 <div class="main">
@@ -121,27 +98,8 @@
       <div class="map-text">Language is {language}</div>
     </div>
   {:else if currentPage === "station"}
-    <!-- STATION MAP WITH ZOOM -->
-    <div class="map" on:dblclick={resetZoom}>
-      <div
-        class="map-inner"
-        style="
-          --zoom: {zoomedSection !== null ? 2 : 1};
-          --translate-x: {zoomedSection !== null
-          ? getTranslate(zoomedSection).x
-          : 0}px;
-          --translate-y: {zoomedSection !== null
-          ? getTranslate(zoomedSection).y
-          : 0}px;
-        "
-      ></div>
-
-      <div class="grid-overlay">
-        {#each Array(rows * cols) as _, i}
-          <div class="grid-cell" on:click={() => zoomTo(i)}></div>
-        {/each}
-      </div>
-
+    <div class="map">
+      <div class="map-text">Language is {language}</div>
       <button
         class="next-btn"
         transition:slide={{ duration: 400 }}
@@ -152,18 +110,41 @@
     </div>
   {:else if currentPage === "ticket"}
     <div class="page" transition:slide>
-      <h2>Select ticket options (placeholder)</h2>
+      <div class="ticket-preview">
+        <div class="ticket-header">
+          <h3>Local Ticket</h3>
+          <span>₹20.00</span>
+        </div>
+        <div class="ticket-body">
+          <div><strong>From:</strong> CST</div>
+          <div><strong>To:</strong> Dadar</div>
+          <div><strong>Passenger:</strong> 1 Adult</div>
+          <div><strong>Language:</strong> {language}</div>
+        </div>
+      </div>
       <button
         class="next-btn"
         transition:scale={{ duration: 400 }}
         on:click={goNext}
       >
-        Next →
+        Pay →
       </button>
     </div>
   {:else if currentPage === "payment"}
     <div class="page" transition:fade>
-      <h2>Payment Page (placeholder)</h2>
+      <h2>Payment Page</h2>
+      <div class="ticket-preview small">
+        <div class="ticket-header">
+          <h3>Local Ticket</h3>
+          <span>₹20.00</span>
+        </div>
+        <div class="ticket-body">
+          <div><strong>From:</strong> CST</div>
+          <div><strong>To:</strong> Dadar</div>
+          <div><strong>Passenger:</strong> 1 Adult</div>
+          <div><strong>Language:</strong> {language}</div>
+        </div>
+      </div>
       <button
         class="next-btn"
         transition:scale={{ duration: 400 }}
@@ -191,7 +172,7 @@
   .main {
     border: 1px solid #ffffff;
     box-sizing: border-box;
-    height: 100vh;
+    height: 80vh;
     aspect-ratio: 10 / 16;
     background: rgb(0, 0, 0);
     display: flex;
@@ -229,6 +210,7 @@
     justify-content: space-between;
     margin-top: 6px;
     padding: 0 0.2rem;
+    position: relative;
   }
 
   .checkpoint {
@@ -264,11 +246,11 @@
     font-weight: 600;
   }
 
-  /* MAP + ZOOM SECTION */
   .map {
     flex: 1;
     width: 100%;
     height: 100%;
+    background: url("/map.jpg") center center / cover no-repeat;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -277,36 +259,6 @@
     color: #333;
     position: relative;
     flex-direction: column;
-    overflow: hidden;
-    background-color: white;
-  }
-
-  .map-inner {
-    position: absolute;
-    inset: 0;
-    background: url("/map.jpg") center center / cover no-repeat;
-    transform: scale(var(--zoom))
-      translate(var(--translate-x), var(--translate-y));
-    transition: transform 0.8s ease;
-    transform-origin: center center;
-  }
-
-  .grid-overlay {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    grid-template-rows: repeat(3, 1fr);
-    position: absolute;
-    inset: 0;
-    z-index: 2;
-  }
-
-  .grid-cell {
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    cursor: pointer;
-  }
-
-  .grid-cell:hover {
-    background: rgba(255, 255, 255, 0.05);
   }
 
   .overlay {
@@ -360,8 +312,46 @@
     background-color: white;
   }
 
+  .ticket-preview {
+    width: 80%;
+    height: 20%;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    color: #000;
+    margin-bottom: 1rem;
+  }
+
+  .ticket-preview.small {
+    height: 18%;
+    width: 75%;
+  }
+
+  .ticket-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px dashed #aaa;
+    padding-bottom: 0.3rem;
+    margin-bottom: 0.3rem;
+  }
+
+  .ticket-header h3 {
+    margin: 0;
+    font-size: 1.1rem;
+  }
+
+  .ticket-body {
+    font-size: 0.9rem;
+    line-height: 1.4;
+  }
+
   .next-btn {
-    margin-top: 1rem;
+    margin-top: 0.5rem;
     padding: 0.8rem 1.4rem;
     font-size: 1rem;
     border: none;
@@ -370,6 +360,5 @@
     color: white;
     font-weight: 600;
     cursor: pointer;
-    z-index: 3;
   }
 </style>
