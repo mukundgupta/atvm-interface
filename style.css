@@ -1,0 +1,547 @@
+/* ----- Global Setup & Variables ----- */
+:root {
+  --primary-blue: #045282;
+  --primary-yellow: #ffbf35;
+  --darker-blue: #003555;
+  --primary-text: #222;
+  --secondary-text: #555;
+  --inactive-text: #82a9d1;
+  --border-color: #dde;
+  --bg-light-gray: #f0f2f5;
+  --bg-white: #ffffff;
+  --bg-map: #f0f6fc;
+  --placeholder-blue: #d4e7f2;
+  --btn-height: 4rem;
+  --progress-height: 0.22rem;
+
+  /* Map Legend Colors */
+  --map-red: #d90000;
+  --map-blue: #045282;
+  --map-green: #008000;
+}
+
+/* --- SCALABLE TYPOGRAPHY --- */
+html,
+body {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  font-family: "Noto Sans", "Noto Sans Devanagari", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: #333;
+  display: grid;
+  place-items: center;
+}
+
+/* Responsive root font-size so `rem` scales with the smaller viewport edge */
+html {
+  /* Ensure elements are not tiny on small viewports while still scaling.
+     - Minimum 12px, scales with vmin, maximum 20px for very large screens. */
+  font-size: clamp(12px, calc(8px + 1vmin), 20px);
+}
+
+/* ----- 16:10 Aspect Ratio Container ----- */
+/* ----- 16:10 Aspect Ratio Container ----- */
+.atvm-container {
+  /* Remove fixed height */
+  height: auto;
+  max-height: 95vh; /* optional max */
+  width: 95vw; /* fill most of viewport width */
+  max-width: calc(95vh * (1890 / 3024)); /* max width based on height */
+  aspect-ratio: 1890 / 3024;
+
+  position: relative;
+  overflow: hidden;
+  background-color: var(--bg-light-gray);
+  box-shadow: 0 0.31rem 0.94rem rgba(0, 0, 0, 0.3);
+  border-radius: 0.63rem;
+
+  display: flex;
+  flex-direction: column;
+
+  /* Center in viewport */
+  margin: auto;
+}
+
+/* ----- Screen Common ----- */
+.screen {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ----- Footer ----- */
+.screen-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.63rem 0.94rem;
+  background-color: var(--bg-white);
+  color: var(--primary-blue);
+  font-weight: 700;
+  flex-shrink: 0;
+  border-top: 0.03rem solid #ddd;
+  font-size: 0.8rem;
+}
+
+.screen-footer .time-container {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.screen-footer .clock-icon {
+  margin-right: 0.5rem;
+  font-size: 0.9rem;
+}
+.screen-footer .time {
+  font-size: 0.8rem;
+}
+
+/* ===== SCREEN 1: WELCOME ===== */
+#welcome-screen .station-header {
+  padding: 0.5rem 1rem;
+  display: flex;
+  justify-content: space-between;
+}
+
+#welcome-screen .station-header .step {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.9);
+  text-align: center;
+}
+
+/* Make the welcome header match the Figma top bar */
+#welcome-screen .station-header {
+  background: var(--primary-blue);
+  color: var(--bg-white);
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1rem;
+}
+
+#welcome-screen .station-header .step {
+  flex: 1;
+  text-align: center;
+  font-weight: 700;
+  /* slightly darker labels on the blue header like the Figma export */
+  color: rgba(0, 0, 0, 0.18);
+  position: relative;
+  padding-top: 0.2rem;
+}
+
+/* small rounded progress bars under each step label */
+#welcome-screen .station-header .step::after {
+  content: "";
+  display: block;
+  margin: 0.6rem auto 0;
+  width: 64%;
+  height: var(--progress-height);
+  border-radius: 0.2rem;
+  background: rgba(0, 0, 0, 0.18);
+  opacity: 0.9;
+}
+
+/* emphasise active step (if used) */
+#welcome-screen .station-header .step.active::after {
+  background: rgba(0, 0, 0, 0.28);
+  height: calc(var(--progress-height) * 1.25);
+}
+
+.welcome-main {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 2rem;
+  padding: 2.2rem 1.5rem 6.5rem; /* bottom padding to clear footer */
+}
+
+.welcome-title {
+  /* Very large headline similar to Figma export */
+  font-weight: 700;
+  color: var(--primary-blue);
+  margin-top: 1.2rem;
+  font-size: clamp(3.6rem, 10vw, 8.5rem);
+  line-height: 0.9;
+  text-align: center;
+}
+
+.welcome-placeholder {
+  width: 86%;
+  aspect-ratio: 1 / 1; /* keep square */
+  flex-grow: 0;
+  background-color: var(--placeholder-blue);
+  border-radius: 1rem;
+  border: 0.06rem solid #ddeaf3;
+  box-shadow: 0 0.2rem 0.6rem rgba(0, 0, 0, 0.04) inset;
+}
+
+.language-buttons {
+  display: flex;
+  justify-content: space-between;
+  width: 86%;
+  margin-top: 1.6rem;
+  gap: 1.25rem;
+}
+
+.lang-btn {
+  border: none;
+  padding: 0 1rem;
+  flex: 0 0 30%;
+  font-weight: 700;
+  border-radius: 0.8rem;
+  cursor: pointer;
+  transition: transform 0.12s ease, background-color 0.12s;
+  height: var(--btn-height);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0.6rem 0 rgba(0, 0, 0, 0.12);
+  border: 0.08rem solid rgba(0, 0, 0, 0.18);
+  font-size: clamp(1.05rem, 3.2vw, 1.95rem);
+  background-color: var(--primary-blue);
+  color: var(--primary-yellow);
+}
+
+.lang-btn:hover {
+  transform: translateY(-2px);
+  background-color: var(--darker-blue);
+  color: var(--primary-yellow);
+}
+
+/* ===== SCREEN 2: STATION SELECT ===== */
+#station-screen .station-header {
+  display: flex;
+  align-items: center;
+  background-color: var(--primary-blue);
+  color: var(--bg-white);
+  padding: 0.63rem 0.94rem;
+  font-size: 0.9rem;
+}
+
+.back-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  margin-right: 0.94vh;
+  flex-shrink: 0;
+  border-radius: 50%;
+  transition: background-color 0.2s;
+}
+
+.back-btn svg {
+  width: 1.5rem;
+  height: 1.5rem;
+  stroke: var(--bg-white);
+  transition: stroke 0.2s;
+}
+
+.back-btn:hover svg {
+  stroke: var(--primary-yellow);
+}
+
+.station-header .step {
+  flex: 1;
+  text-align: center;
+  color: var(--inactive-text);
+  font-weight: 700;
+}
+.station-header .step.active span {
+  color: var(--bg-white);
+  border-bottom: var(--progress-height) solid var(--primary-yellow);
+}
+
+/* ===== STATION MAIN ===== */
+.station-main {
+  flex-grow: 1;
+  position: relative;
+  background-color: var(--bg-map);
+  overflow: hidden;
+}
+
+.map-container {
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+}
+
+.map-placeholder {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  color: var(--secondary-text);
+  text-align: center;
+  padding: 1vh;
+  font-size: 0.9vh;
+}
+
+.legend {
+  margin-top: 1.26rem;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 0.63rem;
+  padding: 0.63rem 0.94rem;
+  box-shadow: 0 0.1rem 0.2rem rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5rem;
+  font-weight: 700;
+  color: var(--primary-text);
+}
+.legend .dot {
+  width: 0.8rem;
+  height: 0.8rem;
+  border-radius: 50%;
+  border: 0.06rem solid rgba(0, 0, 0, 0.1);
+}
+
+/* ----- TICKET CONTROLS ----- */
+.ticket-controls {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: var(--bg-white);
+  padding: 0.63rem;
+  border-top: 0.03rem solid var(--border-color);
+  box-shadow: 0 -0.1rem 0.31rem rgba(0, 0, 0, 0.1);
+  display: flex;
+  gap: 0.63rem;
+  align-items: stretch;
+}
+
+.platform-ticket-btn,
+.station-input-container {
+  flex: 1;
+  min-width: 0;
+  border-radius: 0.63rem;
+  padding: 0.63rem;
+  font-weight: 700;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  font-size: 0.9rem;
+  height: var(--btn-height);
+}
+
+/* Welcome-screen specific footer override (blue bar) */
+#welcome-screen {
+  position: relative;
+}
+
+#welcome-screen .screen-footer {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--primary-blue);
+  color: var(--bg-white);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.8rem 1rem;
+  border-top: none;
+}
+
+#welcome-screen .screen-footer .time-container svg {
+  color: var(--bg-white);
+  stroke: var(--bg-white);
+}
+
+#welcome-screen .location {
+  color: var(--bg-white);
+}
+
+.platform-ticket-btn {
+  background-color: var(--primary-yellow);
+  color: var(--primary-blue);
+  border: none;
+  cursor: pointer;
+  line-height: 1.3;
+  text-align: center;
+  width: 100%;
+}
+.platform-ticket-btn:hover {
+  background-color: #e6b800;
+}
+
+.station-input-container {
+  background-color: var(--primary-blue);
+  color: var(--bg-white);
+  gap: 0.25rem;
+  width: 100%;
+}
+
+.station-input-container label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding-left: 0.2rem;
+  width: 100%;
+}
+
+.input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  flex: 1;
+}
+
+.input-wrapper .search-icon {
+  position: absolute;
+  left: 0.5rem;
+  width: 1rem;
+  height: 1rem;
+  color: var(--secondary-text);
+}
+
+.input-wrapper .clear-icon {
+  position: absolute;
+  right: 0.5rem;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.input-wrapper input {
+  width: 100%;
+  height: 100%;
+  padding: 0.63rem 1.5rem;
+  border: 0.03rem solid var(--border-color);
+  border-radius: 0.31rem;
+  background-color: var(--bg-white);
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--primary-text);
+  box-sizing: border-box;
+}
+.input-wrapper input:focus {
+  outline: 0.06rem solid var(--primary-yellow);
+}
+.input-wrapper input[readonly] {
+  background-color: var(--bg-white);
+  color: var(--primary-text);
+  cursor: default;
+}
+
+/* ===== SCREEN 3: SEARCH STATION (KEYBOARD) ===== */
+.search-main {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--primary-blue);
+  padding: 1rem;
+  gap: 1rem;
+  overflow: hidden;
+}
+
+.search-input-section {
+  flex-shrink: 0;
+  width: 100%;
+}
+
+.search-input-section .station-input-container {
+  background-color: var(--primary-blue);
+  border: none;
+  padding: 0;
+  margin: 0;
+}
+
+.search-input-section .station-input-container label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding-left: 0.2rem;
+  color: var(--bg-white);
+  display: block;
+  margin-bottom: 0.3rem;
+}
+
+.search-input-section .input-wrapper input {
+  width: 100%;
+  padding: 0.63rem 1.5rem;
+  border: 0.03rem solid var(--border-color);
+  border-radius: 0.31rem;
+  background-color: var(--bg-white);
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--primary-text);
+}
+
+/* ----- KEYBOARD STYLING ----- */
+.keyboard-container {
+  flex-grow: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  padding: 0.5rem;
+}
+
+.keyboard {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  width: 100%;
+  max-width: 100%;
+}
+
+.keyboard-row {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.key {
+  flex: 0 0 calc(10% - 0.5rem);
+  min-width: 2.5rem;
+  aspect-ratio: 1;
+  border: none;
+  border-radius: 0.5rem;
+  background-color: var(--bg-white);
+  color: var(--primary-blue);
+  font-weight: 700;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: transform 0.08s, background-color 0.08s;
+  box-shadow: 0 0.2rem 0.4rem rgba(0, 0, 0, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.key:active {
+  transform: translateY(0.15rem);
+  box-shadow: 0 0.1rem 0.2rem rgba(0, 0, 0, 0.1);
+}
+
+.key:hover {
+  background-color: #f5f5f5;
+}
+
+/* Space key and submit key special sizing */
+.space-key {
+  flex: 0 0 calc(70% - 0.5rem);
+  min-width: auto;
+}
+
+.submit-key {
+  flex: 0 0 calc(30% - 0.5rem);
+  min-width: auto;
+  background-color: var(--primary-blue);
+  color: var(--primary-yellow);
+  font-weight: 700;
+  font-size: 1.5rem;
+}
