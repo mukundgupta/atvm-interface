@@ -1,49 +1,111 @@
-<div class="atvm-container">
-  <section id="header" class="header-section">
-    <div class="container">
-      <header class="app-header">
-        <nav class="tabs">
-          <a href="#station" class="tab-item active">Station</a>
-          <a href="#details" class="tab-item">Details</a>
-          <a href="#pay" class="tab-item">Pay</a>
-        </nav>
-      </header>
-    </div>
-  </section>
+<div id="scale-viewport-wrapper">
+  <div id="scale-viewport-content">
+    <div class="atvm-container">
+      <section id="header" class="header-section">
+        <div class="container">
+          <header class="app-header">
+            <nav class="tabs">
+              <a href="#station" class="tab-item active">Station</a>
+              <a href="#details" class="tab-item">Details</a>
+              <a href="#pay" class="tab-item">Pay</a>
+            </nav>
+          </header>
+        </div>
+      </section>
 
-  <section id="main" class="main-section">
-    <div class="container">
-      <main class="main-content-wrapper">
-        <h1 class="greeting">नमस्ते</h1>
-        <div class="content-placeholder"></div>
-        <div class="language-selector">
-          <button class="lang-button btn-english">English</button>
-          <button class="lang-button btn-hindi">हिन्दी</button>
-          <button class="lang-button btn-marathi">मराठी</button>
+      <section id="main" class="main-section">
+        <div class="container">
+          <main class="main-content-wrapper">
+            <h1 class="greeting">नमस्ते</h1>
+            <div class="content-placeholder"></div>
+            <div class="language-selector">
+              <button class="lang-button btn-english">English</button>
+              <button class="lang-button btn-hindi">हिन्दी</button>
+              <button class="lang-button btn-marathi">मराठी</button>
+            </div>
+          </main>
         </div>
-      </main>
-    </div>
-  </section>
+      </section>
 
-  <section id="footer" class="footer-section">
-    <div class="container">
-      <footer class="app-footer">
-        <div class="time-info">
-          <img
-            src="${ASSET_PATH}/2473_1190.svg"
-            alt="Clock icon"
-            class="clock-icon"
-          />
-          <span class="time-text">12:00</span>
+      <section id="footer" class="footer-section">
+        <div class="container">
+          <footer class="app-footer">
+            <div class="time-info">
+              <img
+                src="${ASSET_PATH}/2473_1190.svg"
+                alt="Clock icon"
+                class="clock-icon"
+              />
+              <span class="time-text">12:00</span>
+            </div>
+            <div class="location-info">
+              <span class="location-text">Ulhasnagar</span>
+            </div>
+          </footer>
         </div>
-        <div class="location-info">
-          <span class="location-text">Ulhasnagar</span>
-        </div>
-      </footer>
+      </section>
     </div>
-  </section>
+  </div>
 </div>
+<script>
+  // --- Responsive scale-to-fit logic for 1890x3024 portrait ---
+  function scaleContent() {
+    const baseW = 1890,
+      baseH = 3024;
+    const wrapper = document.getElementById("scale-viewport-wrapper");
+    const content = document.getElementById("scale-viewport-content");
+    if (!wrapper || !content) return;
+    const ww = window.innerWidth,
+      wh = window.innerHeight;
+    // Fit by min scale to cover both width and height
+    const scale = Math.min(ww / baseW, wh / baseH);
+    content.style.transform = `scale(${scale})`;
+    content.style.transformOrigin = "top left";
+    // Center the scaled content
+    content.style.position = "absolute";
+    content.style.left = `${(ww - baseW * scale) / 2}px`;
+    content.style.top = `${(wh - baseH * scale) / 2}px`;
+    content.style.width = baseW + "px";
+    content.style.height = baseH + "px";
+    wrapper.style.overflow = "hidden";
+    wrapper.style.position = "fixed";
+    wrapper.style.top = "0";
+    wrapper.style.left = "0";
+    wrapper.style.width = "100vw";
+    wrapper.style.height = "100vh";
+    wrapper.style.background = "var(--color-background, #ebebeb)";
+  }
+  window.addEventListener("resize", scaleContent);
+  window.addEventListener("DOMContentLoaded", scaleContent);
+</script>
 <style>
+  html,
+  body {
+    height: 100%;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+  }
+  #scale-viewport-wrapper {
+    width: 100vw;
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    background: var(--color-background, #ebebeb);
+    overflow: hidden;
+    z-index: 0;
+  }
+  #scale-viewport-content {
+    width: 1890px;
+    height: 3024px;
+    position: absolute;
+    left: 0;
+    top: 0;
+    /* transform and centering handled by JS */
+  }
+
   :root {
     /* Colors */
     --color-primary-dark: #003555;
@@ -67,13 +129,6 @@
 
   * {
     box-sizing: border-box;
-  }
-
-  .atvm-container {
-    height: 100vh;
-    width: auto;
-
-    aspect-ratio: 10/16;
   }
 
   body {
